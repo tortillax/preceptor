@@ -123,7 +123,5 @@ func (mb *MusicBot) play(path string) {
 		return
 	}
 
-	if err = mb.Next(); err != nil {
-		go mb.play(mb.currentSong)
-	}
+	mb.Next()
 }
