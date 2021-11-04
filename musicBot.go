@@ -122,5 +122,8 @@ func (mb *MusicBot) play(path string) {
 		// Handle the error
 		return
 	}
-	go mb.play(mb.currentSong)
+
+	if err = mb.Next(); err != nil {
+		go mb.play(mb.currentSong)
+	}
 }
