@@ -76,6 +76,7 @@ func handleInfoChannels(c *gin.Context) {
 			"error":   err.Error(),
 			"context": "reading channels from server",
 		})
+		return
 	}
 
 	cha := make([]*gs, 0)
@@ -90,6 +91,47 @@ func handleInfoChannels(c *gin.Context) {
 		}
 	}
 	c.JSON(200, cha)
+}
+
+func handleActionConnect(c *gin.Context) {
+	serverID := c.Param("server")
+	channelID := c.Param("channel")
+
+	vc, err := bot.session.ChannelVoiceJoin(serverID, channelID, false, true)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error":   err.Error(),
+			"context": "joining voice channel",
+		})
+		return
+	}
+
+	bot.voice = vc
+	c.JSON(200, gin.H{
+		"message": "OK",
+	})
+}
+
+func handleActionDisconnect(c *gin.Context) {
+	if bot.voice == nil {
+		c.JSON(400, gin.H{
+			"error":   "not connected",
+			"context": "joining voice channel",
+		})
+		return
+	}
+
+	if err := bot.voice.Disconnect(); err != nil {
+		c.JSON(400, gin.H{
+			"error":   err.Error(),
+			"context": "joining voice channel",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "OK",
+	})
 }
 
 func handleActionNext(c *gin.Context) {

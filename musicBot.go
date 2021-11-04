@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"path"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
+	"github.com/jonas747/dca"
 )
 
 type MusicBot struct {
@@ -17,8 +19,7 @@ type MusicBot struct {
 	router *gin.Engine
 
 	session *discordgo.Session
-	server  string
-	channel string
+	voice   *discordgo.VoiceConnection
 
 	playlist    []string
 	currentSong string
@@ -31,8 +32,8 @@ func NewMusicBot(libraryPath string) (*MusicBot, error) {
 	r.GET("/info/status", handleInfoStatus)
 	r.GET("/info/servers", handleInfoServers)
 	r.GET("/info/channels/:guild", handleInfoChannels)
-	//r.GET("/action/connect/:server/:channel", handleActionConnect)
-	//r.GET("/action/disconnect", handleActionDisconnect)
+	r.GET("/action/connect/:server/:channel", handleActionConnect)
+	r.GET("/action/disconnect", handleActionDisconnect)
 	r.GET("/action/next", handleActionNext)
 	r.GET("/action/setPlaylist/:id", handleActionSetPlaylist)
 
@@ -41,8 +42,7 @@ func NewMusicBot(libraryPath string) (*MusicBot, error) {
 		router: r,
 
 		session: nil,
-		server:  "",
-		channel: "",
+		voice:   nil,
 
 		playlist:    []string{},
 		currentSong: "idle",
@@ -106,5 +106,21 @@ func (mb *MusicBot) StartPanel(address string) error {
 }
 
 func (mb *MusicBot) play(path string) {
-	//implement me
+	enc, err := dca.EncodeFile(path, dca.StdEncodeOptions)
+	if err != nil {
+		// Handle the error
+		return
+	}
+	defer enc.Cleanup()
+
+	mb.voice.Speaking(true)
+	done := make(chan error)
+	dca.NewStream(enc, mb.voice, done)
+	mb.voice.Speaking(false)
+	err = <-done
+	if err != nil && err != io.EOF {
+		// Handle the error
+		return
+	}
+	go mb.play(mb.currentSong)
 }
