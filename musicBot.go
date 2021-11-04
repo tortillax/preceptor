@@ -1,18 +1,24 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 )
 
 type MusicBot struct {
 	lp     string
 	router *gin.Engine
+
+	session *discordgo.Session
+	server  string
+	channel string
 
 	playlist    []string
 	currentSong string
@@ -23,20 +29,41 @@ func NewMusicBot(libraryPath string) (*MusicBot, error) {
 	r.GET("/info/playlists", handleInfoPlaylists)
 	r.GET("/info/playlist", handleInfoPlaylist)
 	r.GET("/info/status", handleInfoStatus)
-	//r.GET("/action/play", handleActionPlay)
-	//r.GET("/action/stop", handleActionStop)
-	//r.GET("/action/next", handleActionNext)
+	r.GET("/info/servers", handleInfoServers)
+	r.GET("/info/channels/:guild", handleInfoChannels)
+	//r.GET("/action/connect/:server/:channel", handleActionConnect)
+	//r.GET("/action/disconnect", handleActionDisconnect)
+	r.GET("/action/next", handleActionNext)
 	r.GET("/action/setPlaylist/:id", handleActionSetPlaylist)
 
 	mb := &MusicBot{
 		lp:     libraryPath,
 		router: r,
 
+		session: nil,
+		server:  "",
+		channel: "",
+
 		playlist:    []string{},
 		currentSong: "idle",
 	}
 
 	return mb, nil
+}
+
+func (mb *MusicBot) Connect(token string) error {
+	ds, err := discordgo.New("Bot " + token)
+	if err != nil {
+		return err
+	}
+
+	ds.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
+	if err = ds.Open(); err != nil {
+		return err
+	}
+
+	bot.session = ds
+	return nil
 }
 
 func (mb *MusicBot) SetPlaylist(playlistPath string) error {
@@ -62,6 +89,22 @@ func (mb *MusicBot) SetPlaylist(playlistPath string) error {
 	return nil
 }
 
+func (mb *MusicBot) Next() error {
+	if len(mb.playlist) == 0 {
+		return fmt.Errorf("playlist is empty")
+	}
+
+	mb.currentSong = mb.playlist[0]
+	mb.playlist = mb.playlist[1:]
+
+	go mb.play(mb.currentSong)
+	return nil
+}
+
 func (mb *MusicBot) StartPanel(address string) error {
 	return mb.router.Run(address)
+}
+
+func (mb *MusicBot) play(path string) {
+	//implement me
 }

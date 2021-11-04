@@ -5,6 +5,7 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,6 +45,64 @@ func handleInfoPlaylist(c *gin.Context) {
 func handleInfoStatus(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"status": bot.currentSong,
+	})
+}
+
+type gs struct {
+	Name string
+	Id   string
+}
+
+func handleInfoServers(c *gin.Context) {
+	ga := make([]*gs, 0)
+	for _, g := range bot.session.State.Guilds {
+		tg := &gs{
+			Name: g.Name,
+			Id:   g.ID,
+		}
+
+		ga = append(ga, tg)
+	}
+
+	c.JSON(200, ga)
+}
+
+func handleInfoChannels(c *gin.Context) {
+	guildString := c.Param("guild")
+
+	channels, err := bot.session.GuildChannels(guildString)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error":   err.Error(),
+			"context": "reading channels from server",
+		})
+	}
+
+	cha := make([]*gs, 0)
+	for _, ch := range channels {
+		chgs := &gs{}
+		switch ch.Type {
+		case discordgo.ChannelTypeGuildVoice:
+			chgs.Name = ch.Name
+			chgs.Id = ch.ID
+
+			cha = append(cha, chgs)
+		}
+	}
+	c.JSON(200, cha)
+}
+
+func handleActionNext(c *gin.Context) {
+	if err := bot.Next(); err != nil {
+		c.JSON(400, gin.H{
+			"error":   err.Error(),
+			"context": "playing next song",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "OK",
 	})
 }
 
