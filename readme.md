@@ -3,8 +3,10 @@
 
 ## API endpoints
 
-| endpoint        | handler function    | description                  |
-| --------------- | ------------------- | ---------------------------- |
-| /info/playlists | handleInfoPlaylists | list all available playlists |
-
+| endpoint                 | description                    |
+| ------------------------ | ------------------------------ |
+| /info/playlists          | list all available playlists   |
+| /info/playlist           | list songs in current playlist |
+| /info/status             | get status info (song)         |
+| /action/setPlaylist/*id* | set and randomize playslist    |
  
