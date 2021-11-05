@@ -20,7 +20,9 @@ type MusicBot struct {
 
 	session *discordgo.Session
 	voice   *discordgo.VoiceConnection
+	encoder *dca.EncodeSession
 
+	stop        bool
 	playlist    []string
 	currentSong string
 }
@@ -34,7 +36,9 @@ func NewMusicBot(libraryPath string) (*MusicBot, error) {
 	r.GET("/info/channels/:guild", handleInfoChannels)
 	r.GET("/action/connect/:server/:channel", handleActionConnect)
 	r.GET("/action/disconnect", handleActionDisconnect)
-	r.GET("/action/next", handleActionNext)
+	r.GET("/action/stop", handleAdctionStop)
+	r.GET("/action/next", handleAdctionNext)
+	r.GET("/action/play", handleActionPlay)
 	r.GET("/action/setPlaylist/:id", handleActionSetPlaylist)
 
 	mb := &MusicBot{
@@ -43,7 +47,9 @@ func NewMusicBot(libraryPath string) (*MusicBot, error) {
 
 		session: nil,
 		voice:   nil,
+		encoder: nil,
 
+		stop:        true,
 		playlist:    []string{},
 		currentSong: "idle",
 	}
@@ -89,7 +95,7 @@ func (mb *MusicBot) SetPlaylist(playlistPath string) error {
 	return nil
 }
 
-func (mb *MusicBot) Next() error {
+func (mb *MusicBot) Play() error {
 	if len(mb.playlist) == 0 {
 		return fmt.Errorf("playlist is empty")
 	}
@@ -105,17 +111,25 @@ func (mb *MusicBot) StartPanel(address string) error {
 	return mb.router.Run(address)
 }
 
+func (mb *MusicBot) Next() {
+	if mb.encoder != nil {
+		mb.encoder.Stop()
+		mb.encoder.Cleanup()
+	}
+	mb.encoder = nil
+}
+
 func (mb *MusicBot) play(path string) {
 	enc, err := dca.EncodeFile(path, dca.StdEncodeOptions)
 	if err != nil {
 		// Handle the error
 		return
 	}
-	defer enc.Cleanup()
+	mb.encoder = enc
 
 	mb.voice.Speaking(true)
 	done := make(chan error)
-	dca.NewStream(enc, mb.voice, done)
+	dca.NewStream(mb.encoder, mb.voice, done)
 	mb.voice.Speaking(false)
 	err = <-done
 	if err != nil && err != io.EOF {
@@ -123,5 +137,7 @@ func (mb *MusicBot) play(path string) {
 		return
 	}
 
-	mb.Next()
+	if !mb.stop {
+		mb.Play()
+	}
 }

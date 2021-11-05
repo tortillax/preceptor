@@ -12,5 +12,7 @@
 | /info/channels/*serverID*              | list voice channels in server         |
 | /action/connect/*serverID*/*channelID* | conenct to channel on specific server |
 | /action/disconnect                     | disconnect from server                |
+| /action/play                           | start (or resume) playing             |
 | /action/next                           | play next song                        |
+| /action/stop                           | stop playing                          |
 | /action/setPlaylist/*id*               | set and randomize playslist           |

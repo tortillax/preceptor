@@ -134,8 +134,35 @@ func handleActionDisconnect(c *gin.Context) {
 	})
 }
 
-func handleActionNext(c *gin.Context) {
-	if err := bot.Next(); err != nil {
+func handleAdctionNext(c *gin.Context) {
+	bot.Next()
+
+	c.JSON(200, gin.H{
+		"message": "OK",
+	})
+}
+
+func handleAdctionStop(c *gin.Context) {
+	bot.stop = true
+	bot.Next()
+
+	c.JSON(200, gin.H{
+		"message": "OK",
+	})
+}
+
+func handleActionPlay(c *gin.Context) {
+	if !bot.stop {
+		c.JSON(400, gin.H{
+			"error":   "bot is already playing",
+			"context": "playing next song",
+		})
+		return
+	}
+
+	bot.stop = false
+
+	if err := bot.Play(); err != nil {
 		c.JSON(400, gin.H{
 			"error":   err.Error(),
 			"context": "playing next song",
