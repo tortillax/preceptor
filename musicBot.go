@@ -41,6 +41,9 @@ func NewMusicBot(libraryPath string) (*MusicBot, error) {
 	r.GET("/action/play", handleActionPlay)
 	r.GET("/action/setPlaylist/:id", handleActionSetPlaylist)
 
+	r.GET("/", handleRoot)
+	r.GET("/static/:page", handleStatic)
+
 	mb := &MusicBot{
 		lp:     libraryPath,
 		router: r,
@@ -55,6 +58,37 @@ func NewMusicBot(libraryPath string) (*MusicBot, error) {
 	}
 
 	return mb, nil
+}
+
+func handleStatic(c *gin.Context) {
+	page := c.Param("page")
+	switch page {
+	case "style.css":
+		f, _ := fs.Open("www/style.css")
+		defer f.Close()
+		fb, _ := ioutil.ReadAll(f)
+		c.Data(200, "text/css", fb)
+		return
+	case "js.js":
+		f, _ := fs.Open("www/js.js")
+		defer f.Close()
+		fb, _ := ioutil.ReadAll(f)
+		c.Data(200, "text/javascript", fb)
+		return
+	case "ui":
+		f, _ := fs.Open("www/ui.html")
+		defer f.Close()
+		fb, _ := ioutil.ReadAll(f)
+		c.Data(200, "text/html", fb)
+		return
+	default:
+		c.String(404, "page %s not found", page)
+		return
+	}
+}
+
+func handleRoot(c *gin.Context) {
+	c.Redirect(302, "/static/ui")
 }
 
 func (mb *MusicBot) Connect(token string) error {

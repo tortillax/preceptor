@@ -1,9 +1,13 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"log"
 )
+
+//go:embed www/*
+var fs embed.FS
 
 var bot *MusicBot
 

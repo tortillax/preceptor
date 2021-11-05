@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>preceptor control panel</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <h5>preceptor - control panel</h5>
+                <p id="status"><b>status</b>: idle</p>
+                <button class="u-pull-right" onClick="buttonDisconnect()">❌</button>
+                <button class="u-pull-right" onClick="buttonReload()">&#x21bb;</button>
+            </div>
+            <div class="row">
+                <button id="play" class="four columns button" onClick="buttonPlay();">&#9658;</button>
+                <button id="stop" class="four columns button" onClick="buttonStop()">⏹</button>
+                <button id="next" class="four columns button-primary" onClick="buttonNext()">⏭</button>
+            </div>
+            <div class="row">
+                <table class="u-full-width">
+                    <thead>
+                        <tr><th>playling next</th></tr>
+                    </thead>
+                    <tbody id="playlistContent">
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            <div class="row">
+                <center><b>available playlists</b></center>
+                <div class="row" id="playlists">
+                </div>
+            </div>
+            <div class="row">
+                <center><b>available channels</b></center>
+                <div class="row" id="channels">
+                    <button class='u-full-width' onClick='selectServer("267359066337181697", "267359066337181698")'>TEMP FIXME U MIRNEHO GENERAL</button>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="js.js"></script>
+    </body>
+</html>
