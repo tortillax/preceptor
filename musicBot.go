@@ -34,6 +34,7 @@ func NewMusicBot(libraryPath string) (*MusicBot, error) {
 	r.GET("/info/status", handleInfoStatus)
 	r.GET("/info/servers", handleInfoServers)
 	r.GET("/info/channels/:guild", handleInfoChannels)
+	r.GET("/info/allChannels", handleInfoAllChannels)
 	r.GET("/action/connect/:server/:channel", handleActionConnect)
 	r.GET("/action/disconnect", handleActionDisconnect)
 	r.GET("/action/stop", handleAdctionStop)

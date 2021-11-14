@@ -79,36 +79,20 @@ function buttonReload() {
     });    
 
     //channels
-    /*
     var selChannels = document.getElementById("channels");
-    fetch("/info/servers")
+    fetch("/info/allChannels")
     .then(response => response.json())
-    .then(async function(data) {
+    .then(function(data) {
         channelsData = "";
-        for (i = 0; i < data.length; i++) {
-            var serverID = data[i].Id;
-            var serverName = data[i].Name;
-
-            fetch("/info/channels/" + serverID)
-            .then(response => response.json())
-            .then(function(data) {
-                for (j = 0; j < data.length; j++) {
-                    var channelID = data[j].Id;
-                    var channelName = data[j].Name;
-
-                    channelsData += "<button class='u-full-width' onClick='selectServer(" + serverID + ", " + channelID + ")'>" + channelName + "@" + serverName + "</button>";
-                }
-            });
+        for (var i = 0; i < data.length; i++) {
+            channelsData += "<button class='u-full-width' onClick='selectServer(\"" + data[i].ServerID + "\", \"" + data[i].ChannelID + "\")'>" + data[i].ChannelName + " @" + data[i].ServerName + "</button>";
         }
-
-        await new Promise(r => setTimeout(r, 2000));
         selChannels.innerHTML = channelsData;
     })
     .catch(function(error) {
         channelsData = "error comunicating with API";
         selChannels.innerHTML = channelsData;
     });
-    */
 }
 
 /*

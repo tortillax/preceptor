@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
@@ -84,13 +85,45 @@ func handleInfoChannels(c *gin.Context) {
 		chgs := &gs{}
 		switch ch.Type {
 		case discordgo.ChannelTypeGuildVoice:
-			chgs.Name = ch.Name
+			nr := strings.Replace(ch.Name, "#", "", -1)
+
+			chgs.Name = nr
 			chgs.Id = ch.ID
 
 			cha = append(cha, chgs)
 		}
 	}
 	c.JSON(200, cha)
+}
+
+type ci struct {
+	ServerID    string
+	ServerName  string
+	ChannelID   string
+	ChannelName string
+}
+
+func handleInfoAllChannels(c *gin.Context) {
+	ga := make([]*ci, 0)
+	for _, g := range bot.session.State.Guilds {
+		channels, _ := bot.session.GuildChannels(g.ID)
+
+		for _, ch := range channels {
+			if ch.Type == discordgo.ChannelTypeGuildVoice {
+				nr := strings.Replace(ch.Name, "#", "", -1)
+
+				i := &ci{
+					ServerID:    g.ID,
+					ServerName:  g.Name,
+					ChannelID:   ch.ID,
+					ChannelName: nr,
+				}
+				ga = append(ga, i)
+			}
+		}
+	}
+
+	c.JSON(200, ga)
 }
 
 func handleActionConnect(c *gin.Context) {
