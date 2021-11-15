@@ -186,7 +186,7 @@ func handleActionDisconnect(c *gin.Context) {
 	})
 }
 
-func handleAdctionNext(c *gin.Context) {
+func handleActionNext(c *gin.Context) {
 	bot.Next()
 
 	c.JSON(200, gin.H{
@@ -194,8 +194,9 @@ func handleAdctionNext(c *gin.Context) {
 	})
 }
 
-func handleAdctionStop(c *gin.Context) {
+func handleActionStop(c *gin.Context) {
 	bot.stop = true
+	bot.currentSong = "idle"
 	bot.Next()
 
 	c.JSON(200, gin.H{
