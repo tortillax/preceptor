@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -40,10 +41,28 @@ func handleInfoPlaylist(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, bot.playlist)
+	l := []string{}
+	for _, s := range bot.playlist {
+		r, _ := regexp.Compile(`^.*\/(.*).mp3`)
+		o := r.FindStringSubmatch(s)
+
+		l = append(l, o[1])
+	}
+
+	c.JSON(200, l)
 }
 
 func handleInfoStatus(c *gin.Context) {
+	if strings.HasSuffix(strings.ToLower(bot.currentSong), ".mp3") {
+		r, _ := regexp.Compile(`^.*\/(.*).mp3`)
+		o := r.FindStringSubmatch(bot.currentSong)
+
+		c.JSON(200, gin.H{
+			"status": o[1],
+		})
+		return
+	}
+
 	c.JSON(200, gin.H{
 		"status": bot.currentSong,
 	})
