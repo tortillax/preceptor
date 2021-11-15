@@ -17,16 +17,25 @@ function buttonDisconnect() {
     fetch("/action/disconnect");
 }
 
-function buttonPlay() {
+async function buttonPlay() {
     fetch("/action/play");
+
+    await new Promise(r => setTimeout(r, 550));
+    buttonReload();
 }
 
-function buttonStop() {
+async function buttonStop() {
     fetch("/action/stop");
+
+    await new Promise(r => setTimeout(r, 550));
+    buttonReload();
 }
 
-function buttonNext() {
+async function buttonNext() {
     fetch("/action/next");
+
+    await new Promise(r => setTimeout(r, 550));
+    buttonReload();
 }
 
 function buttonReload() {
